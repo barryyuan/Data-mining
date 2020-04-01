@@ -1,0 +1,147 @@
+
+
+1.	Given a simple transaction database: 
+
+ 
+a)	Use the Aprior method manually to derive all frequent item sets having support ≥ 40%. (handwriting question)
+b)	Using the frequent item sets found in part (a), manually derive all association rules having confidence ≥60%. 
+
+Frequent itemsets of length 1:
+Itemset	sup
+{A}	4/5
+{B}	3/5
+{C}	3/5
+{D}	3/5
+{E}
+1/5
+Itemset	sup
+{A}	4/5
+{B}	3/5
+{C}	3/5
+{D}	3/5
+
+
+
+
+
+
+
+
+Frequent itemsets of length 2:
+Itemset	sup
+{A,B}	2/5
+{A,C}	2/5
+{A,D}	3/5
+{B,C}	3/5
+{B,D}
+1/5
+{C,D}
+1/5
+Itemset	sup
+{A,B}	2/5
+{A,C}	2/5
+{A,D}	3/5
+{B,C}	3/5
+   
+Frequent itemsets of length 3 and 4:
+
+Itemset	sup
+{A,B,C}	2/5
+{A,B,D}
+
+{A,C,D}
+
+{A,B,C,D}
+
+Itemset	sup
+{A,B,C}	2/5
+
+
+So all the frequent itemsets are 
+{A},{B},{C},{D},{A,B},{A,C},{A,D}{B,C}{A,B,C}.
+
+(b) c(AB C)=  =2/2=1   c(A BC)=  =2/4<60%
+   c(B AC)=  =2/3=0.67   c(C AB)=  =2/3=0.67
+   c(AC B)=  =2/2=1      c(BC A)=  =2/3=0.67
+c(A B)=  =2/4<60%
+     c(B A)=  =2/3=0.67
+c(A C)=  =2/4<60%
+c(C A)=  =2/3=0.67
+c(A D)=  =3/4=0.75     c(D A)=  =3/3=1
+c(B C)=  =3/3=1     c(C B)=  =3/3=1
+So all association rules are AB C, B AC, C AB, AC B, BC A, B A, C A, A D, D A, B C, C B.
+
+
+2.	Most frequent pattern mining algorithms consider only distinct items in a transaction. However, multiple occurrences of an item in the same shopping basket, such as four cakes and three jugs of milk, can be important in transaction data analysis. How can one mine frequent itemsets efficiently considering multiple occurrences of items? Propose modications to algorithms for Apriori to adapt to such a situation.
+
+
+     3.
+ 
+ 
+ 
+ 
+
+4.	The following Table shows a 2×2×2 contingency table for the binary variables A and B at different values of the control variable C.
+ 
+
+ 
+ 
+ 
+
+5.	Consider the following traffic accident data set shown in the following table.
+ 
+(a)	Show a binarized version of the data set.
+ 
+(b)	What is the maximum width of each transaction in the binarized data?
+5
+(c)	Assuming that support threshold is 30%, how many candidate and frequent itemsets will be generated?
+ 
+
+6.	Consider a dataset about the passengers on Titanic on April 15th, 1912, the day of its sinking after collision with an iceberg. The titanic dataset gives the values of four categorical attributes for each of the 2201 people on board the Titanic when it struck an iceberg and sank. The attributes are social class (first class, second class, third class, crewmember), age (adult or child), sex, and whether or not the person survived. The purpose of analysis is to find what kind of person is more likely to survive in this tragedy. Find useful association rules from the titanic dataset and write your conclusion. 
+
+  
+
+Solution：
+install.packages("arules")
+library(Matrix)
+library(lattice)
+library(arules)
+titanic=read.csv(file.choose(), header=T)
+
+#first transform binary data of survived as factor
+titanic$survived=as.factor(titanic$survived)
+#transform data as transactions,
+ titanic=as(titanic, "transactions")
+inspect(titanic)
+rules=apriori(titanic,parameter=list(support=0.02,confidence=0.5))
+summary(rules)
+rulesurvived=subset(rules,subset=rhs%in%"survived=1")
+inspect(rulesurvived)
+You only need to list some rules! 
+It’s OK as long as you can get the important information and give a reasonable explanation!
+
+
+
+
+7. Download the 1984 Congressional Voting Records Database from ISpace. Use 
+package ‘arules’ to find association rules for this data. The Apriori algorithm is applied to the data set with minsup=30% and minconf=90%.
+ (http://archive.ics.uci.edu/ml/datasets/Congressional+Voting+Records). 
+Try to use of ALL three key-points: Support, Confidence and Lift.
+
+
+No need to list all the rules. Choose some rules that are interesting and meaningful. Give some explanation. 
+
+install.packages()
+library("arules")
+x=read.csv(file.choose(),header=F)
+y=as(x,"transactions")
+rules=apriori(y, parameter=list(support=0.3,confidence=0.9))
+attach(x)
+rules1=subset(rules, subset=rhs%in%"V1=republican"&lift>1.2)
+inspect(rules1)
+itemFrequency(y)
+
+Only list some rules is OK! Can explain and get important information is OK!
+
+
+
