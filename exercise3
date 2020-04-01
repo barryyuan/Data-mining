@@ -1,0 +1,182 @@
+
+
+
+1.	Generate manually a decision tree using greedy approach from these training instances. Use Information Gain as the criterion for splitting. Show all your calculations.
+ 
+ 
+
+
+
+2.	Lab exercise: 
+The titanic dataset gives the values of four categorical attributes for each of the 2201 people on board the Titanic when it struck an iceberg and sank. The attributes are social class (first class, second class, third class, crewmember), age (adult or child), sex, and whether or not the person survived. The purpose of analysis is to find what kind of person is more likely to survive in this tragedy.     
+
+a)	Generate a decision tree model to the entire Titanic data set using R. 
+ibrary("rpart")
+titanic<-read.csv("D:\\titanic.csv",header=T)
+titanic$survived<-as.factor(titanic$survived) 
+tree1<-rpart(survived~.,data=titanic)
+tree1
+
+n= 2201 
+node), split, n, loss, yval, (yprob)
+      * denotes terminal node
+
+ 1) root 2201 711 0 (0.6769650 0.3230350)  
+   2) sex=male 1731 367 0 (0.7879838 0.2120162)  
+     4) age=adult 1667 338 0 (0.7972406 0.2027594) *p01=vector()
+     5) age=child 64  29 0 (0.5468750 0.4531250)  
+      10) pclass=3rd 48  13 0 (0.7291667 0.2708333) *
+      11) pclass=1st,2nd 16   0 1 (0.0000000 1.0000000) *
+   3) sex=female 470 126 1 (0.2680851 0.7319149)  
+     6) pclass=3rd 196  90 0 (0.5408163 0.4591837) *
+     7) pclass=1st,2nd,crew 274  20 1 (0.0729927 0.9270073) *
+
+plot(tree1,uniform=T,margin=0.1,branch=0.5,compress=T)
+text(tree1)
+ 
+b)	Extract decision rule from the tree model produced in the first question. Comments on the results.
+
+This tree model generates the following decision rule. 
+1. If sex=”male” and age=”adult” then not survived  
+2. If                  then 
+3. If                  then 
+4. If                  then 
+5. If                  then 
+
+This tree model generates the following decision rule.
+1. If sex=”male” and age=”adult” then not survived  
+2. If sex=”male” and age=”child” and pclass=”3rd ” then not survived
+3. If sex=”male” and age=”child” and pclass=”1st and 2nd ” then survived 
+4. If sex=”female” and pclass=”3rd ” then not survived
+5. If sex=”female” and pclass=”1st and 2nd ” then survived
+
+c)	Select randomly 60% of the data for training and the remaining 40% data for testing. Fill in the following confusion matrix for the testing results. Comment on the results. 
+		Predicted
+		Survived	Not survived
+Actual	Survived		
+	survived		
+
+Notes: A confusion matrix (Kohavi and Provost, 1998) contains information about actual and predicted classifications done by a classification system. The following table shows the confusion matrix for a two class classifier.
+The entries in the confusion matrix have the following meaning in the context of our study:
+•	a is the number of correct predictions that an instance is in class 1, 
+•	b is the number of incorrect predictions that an instance belongs to class 1, 
+•	c is the number of incorrect of predictions that an instance is in class 2, and 
+•	d is the number of correct predictions that an instance belongs to class 2. 
+		Predicted
+		Class 1	Class 2
+Actual	Class 1	a	b
+	Class 2	c	d
+Solution:  
+m=dim(titanic)
+tt<-sample(1:m[1],round(0.6*m[1]))
+tdata<-titanic[tt,]
+cdata<-titanic[-tt,-m[2]]
+clabel<-titanic[-tt,m[2]]
+tree1<-rpart(survived~.,data=tdata)
+p<-predict(tree1,newdata=cdata)
+pc<- ifelse(p[,1]>p[,2],0,1)
+p01<- sum(pc[clabel==0]); p01
+[1] 87
+p00<-sum(clabel==0)-p01;p00 
+[1] 518
+p11<-sum(pc[clabel==1]);p11
+[1] 142
+p10<-sum(clabel==1)-p11;p10
+[1] 133
+
+		Predicted
+		Class 0	Class 1
+Actual	Class 0 (not survived)	518	87
+	Class 1 (survived)	133	142
+
+If you don’t want to program, you can use the command of “table”.
+table(clabel,pc)
+
+
+d)	Repeat the procedure in problem (3) 100 times. Give averaged overall training error and testing error. 
+
+p01=vector()
+p00=vector()
+p11=vector()
+p10=vector()
+train.error=vector()
+test.error=vector()
+for (i in (1: 100))
+{tt<-sample(1:m[1],round(0.6*m[1]))
+tdata<-titanic[tt,]
+cdata<-titanic[-tt,-m[2]]
+clabel<-titanic[-tt,m[2]]
+tree1<-rpart(survived~.,data=tdata)
+p<-predict(tree1,newdata=cdata)
+pc<- ifelse(p[,1]>p[,2],0,1)
+p01[i]<- sum(pc[clabel==0])
+p00[i]<-sum(clabel==0)-p01[i]
+p11[i]<-sum(pc[clabel==1])
+p10[i]<-sum(clabel==1)-p11[i]
+test.error[i]=mean((p01+p10)/(0.4*m[1]))
+mt<-dim(tdata)
+pt<- predict(tree1,newdata=tdata)
+pt1<-ifelse(pt[,1]>pt[,2],0,1)
+train.error[i]<-sum(pt1!=tdata[,mt[2]])/mt[1]}
+train.err<-mean(train.error) #overall training error
+test.err<-mean(test.error) #overall testing error
+
+> train.err
+[1] 0.2137245
+> test.err
+[1] 0.2183715
+
+3. The data file bank-data.csv contains the following attributes:
+
+age	age of customer in years (numeric)
+sex	MALE / FEMALE
+income	income of customer (numeric)
+married	is the customer married (YES/NO)
+children	number of children (numeric)
+car	does the customer own a car (YES/NO)
+save_acct	does the customer have a saving account (YES/NO)
+current_acct	does the customer have a current account (YES/NO)
+mortgage	does the customer have a mortgage (YES/NO)
+pep	did the customer buy a PEP (Personal Equity Plan) after the last mailing (YES/NO)
+
+(a)	Divide the attribute income into three categories with value `Low', `Middle' and `High' corresponding to the intervals [0, 24386), [24386, 43758), [43758, ∞) respectively. Create side-by-side box plots to compare the distributions of age for customers with low, middle and high income, respectively. Explain what can be found from this figure.
+Solution:
+bankdata=read.csv(file.choose(),header=T)
+bankdata[["income"]]=cut(bankdata[["income"]],c(0,24386,43758,Inf),labels=c("Low","Middle","High"))
+boxplot(bankdata[["age"]]~bankdata[["income"]])
+ 
+(b)	Suppose the class of income is the target class. Generate a decision tree model to the entire data and plot this tree model. (use control parameter: minsplit=10,cp=0.)
+library("rpart")
+fit <- rpart(income~., data=bankdata, minsplit=10,cp=0)
+fit
+plot(fit,uniform=T,margin=0.1,branch=0.5,compress=T)
+text(fit)
+ 
+(c)	Use the post-pruning strategy to prune the tree you obtained in question (b). 
+pfit<- prune(fit, cp=fit$cptable[which.min(fit$cptable[,"xerror"]),"CP"])
+plot(pfit, uniform=TRUE, main="Pruned Classification Tree for bankdata")
+text(pfit, use.n=TRUE, all=TRUE, cex=.8)
+ 
+(d)	Use ten-fold cross-validation to evaluate the performance of decision tree you obtained in problem (c). Give averaged overall testing error. 
+
+bankdata=read.csv(file.choose(),header=T)
+bankdata[["income"]]=cut(bankdata[["income"]],c(0,24386,43758,Inf),labels=c("Low","Middle","High"))
+m=dim(bankdata)
+n=10
+pc=vector()
+num<-m[1]%/%n
+test.error<-vector()	
+for (i in (1: n))
+{if (i!=n) 
+a<-((i-1)*num+1): (i*num)
+if (i==n) 
+a<-((i-1)*num+1):m[1]
+traindata<-bankdata[-a,]
+testdata<-bankdata[a,]
+mc=dim(testdata)
+   fit <- rpart(income~., data=traindata, minsplit=10,cp=0)
+   pfit<- prune(fit, cp=fit$cptable[which.min(fit$cptable[,"xerror"]),"CP"])
+  p=predict(pfit,newdata=testdata , type="class")
+test.error[i]=sum(p!=testdata[,3])/num
+   }
+test.error=mean(test.error)
